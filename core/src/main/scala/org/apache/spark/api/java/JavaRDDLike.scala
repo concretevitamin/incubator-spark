@@ -247,6 +247,15 @@ trait JavaRDDLike[T, This <: JavaRDDLike[T, This]] extends Serializable {
   }
 
   /**
+   * Return an array that contains all of the elements in a specific partition of this RDD.
+   */
+  def collectPartition(partition: Int): JList[T] = {
+    import scala.collection.JavaConversions._
+    val results = rdd.sparkContext.runJob(rdd, ((iter: Iterator[T]) => iter.toArray), Seq(partition), true)
+    new java.util.ArrayList(results.headOption.getOrElse(Array()).toSeq)
+  }
+
+  /**
    * Reduces the elements of this RDD using the specified commutative and associative binary operator.
    */
   def reduce(f: JFunction2[T, T, T]): T = rdd.reduce(f)
